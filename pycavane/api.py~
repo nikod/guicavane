@@ -51,7 +51,6 @@ class Episode(object):
     _genere_re = re.compile('<b>Género:</b>(.*?)<br />')
     _language_re = re.compile('<b>Idioma:</b>(.*?)<br />')
     _season_number_re = re.compile('<b>Temporada:</b> (.*?)<br />')
-    _subtitle_re = re.compile('<b>Subtítulos:</b>(.*?)</div>')
 
     __info = None
     __hosts = None
@@ -69,31 +68,19 @@ class Episode(object):
             setattr(self.__class__, info_key,
                     property(lambda self, i=info_key:self.info[i]))
 
-    def get_subtitle(self, filename=None):
+    def get_subtitle(self, lang='ES', filename=None):
         """ Downloads the subtitle of the episode. """
 
-	lang = self.get_available_subtitles(self.info['subtitle'])
+        if filename:
+            filename += '.srt'
 
-	for i in range(len(lang)):
-            if filename:
-		filename2 = filename
-		filename2 += '-' +lang[i] +'.srt'
-            try:
-                result = url_open(urls.sub_show % (self.id, lang[i]), filename=filename2)
-            except:
-                raise Exception("Subtitle not found")
+        try:
+            result = url_open(urls.sub_show % (self.id, lang), filename=filename)
+        except:
+            raise Exception("Subtitle not found")
 
         return result
 
-    def get_available_subtitles(self, subtitle):
-	subtitle = subtitle.split(', ')
-	for i in range(len(subtitle)):
-		if subtitle[i] == 'Español':
-			subtitle[i] = 'ES'
-		elif subtitle[i] == 'Inglés':
-			subtitle[i] = 'EN'			
-	return subtitle
-	
     @property
     def name(self):
         #if self.__name.endswith('...'):
@@ -117,10 +104,9 @@ class Episode(object):
         genere = self._genere_re.findall(page_data)[0].strip()
         language = self._language_re.findall(page_data)[0].strip()
         season = self._season_number_re.findall(page_data)[0].strip()
-	subtitle = self._subtitle_re.findall(page_data)[0].strip()
 
         self.__info = {'name': name, 'show': show, 'image': image, 'description': description,
-                'cast': cast, 'genere': genere, 'language': language, 'season': season, 'subtitle' : subtitle}
+                'cast': cast, 'genere': genere, 'language': language, 'season': season}
         return self.__info
 
     @property
@@ -156,6 +142,7 @@ class Episode(object):
     @property
     def normalized_name(self):
         return normalize_string(self.info["name"])
+
 
     @classmethod
     def search(self, season):
@@ -248,7 +235,6 @@ class Movie(object):
     _genere_re = re.compile('<b>Género:</b>(.*?)<br />')
     _language_re = re.compile('<b>Idioma:</b>(.*?)<br />')
     _hosts_re = re.compile("goSource\('([a-zA-Z0-9]*?)','([a-zA-Z]*?)'\)")
-    _subtitle_re = re.compile('<b>Subtítulos:</b>(.*?)</div>')
 
     __info = ""
     __hosts = None
@@ -259,30 +245,18 @@ class Movie(object):
         self.year = year
         self.__description = description
 
-    def get_subtitle(self, filename=None):
+    def get_subtitle(self, lang='ES', filename=None):
         """ Downloads the subtitle of the movie. """
-        
-	lang = self.get_available_subtitles(self.info['subtitle'])
 
-	for i in range(len(lang)):
-            if filename:
-		filename2 = filename
-		filename2 += '-' +lang[i] +'.srt'
-	    try:
-		result = url_open(urls.sub_movie % (self.id, lang[i]), filename=filename2)
-	    except:
-	        raise Exception("Subtitle not found")
+        if filename:
+            filename += '.srt'
+
+        try:
+            result = url_open(urls.sub_movie % (self.id, lang), filename=filename)
+        except:
+            raise Exception("Subtitle not found")
 
         return result
-
-    def get_available_subtitles(self, subtitle):
-	subtitle = subtitle.split(', ')
-	for i in range(len(subtitle)):
-		if subtitle[i] == 'Español':
-			subtitle[i] = 'ES'
-		elif subtitle[i] == 'Inglés':
-			subtitle[i] = 'EN'			
-	return subtitle
 
     @property
     def description(self):
@@ -317,10 +291,9 @@ class Movie(object):
         cast = self._cast_re.findall(page_data)
         genere = self._genere_re.findall(page_data)[0].strip()
         language = self._language_re.findall(page_data)[0].strip()
-	subtitle = self._subtitle_re.findall(page_data)[0].strip()
 
         self.__info = {'name': name, 'image': image, 'description': description,
-                'cast': cast, 'genere': genere, 'language': language, 'subtitle': subtitle}
+                'cast': cast, 'genere': genere, 'language': language}
 
         return self.__info
 
