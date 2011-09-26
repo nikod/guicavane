@@ -248,7 +248,7 @@ class Movie(object):
     _genere_re = re.compile('<b>Género:</b>(.*?)<br />')
     _language_re = re.compile('<b>Idioma:</b>(.*?)<br />')
     _hosts_re = re.compile("goSource\('([a-zA-Z0-9]*?)','([a-zA-Z]*?)'\)")
-    _subtitle_re = re.compile('<b>Subtítulos:</b>(.*?)</div>')
+    _subtitle_re = re.compile('<b>Subtítulos:</b>(.*?)</p>')
 
     __info = ""
     __hosts = None
